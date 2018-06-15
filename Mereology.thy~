@@ -43,13 +43,13 @@ text {* As are the following operations on individuals @{cite "casati_parts_1999
 definition S:: "i \<Rightarrow> i \<Rightarrow> i" (infix "\<^bold>+" 52)
   where "x \<^bold>+ y \<equiv> THE z. \<forall> w. O w z \<longleftrightarrow> O w x \<or> O w y" -- "sum or fusion"
 definition T:: "i \<Rightarrow> i \<Rightarrow> i" (infix "\<^bold>\<times>" 53)
-  where "x \<^bold>\<times> y \<equiv> THE z. \<forall> w. O w z \<longleftrightarrow> O w x \<and> O w y" -- "product or intersection"
+  where "x \<^bold>\<times> y \<equiv> THE z. \<forall> w. P w z \<longleftrightarrow> P w x \<and> P w y" -- "product or intersection"
 definition u:: "i" ("u")
   where "u \<equiv> THE z. \<forall> w. P w z" -- "universe"
 definition M:: "i \<Rightarrow> i \<Rightarrow> i" (infix "\<^bold>-" 51)
-  where "x \<^bold>- y \<equiv> THE z. \<forall> w. O w z \<longleftrightarrow> O w x \<and> \<not> O w y" -- "difference"
+  where "x \<^bold>- y \<equiv> THE z. \<forall> w. P w z \<longleftrightarrow> P w x \<and> \<not> O w y" -- "difference"
 definition C:: "i \<Rightarrow> i" ("\<^bold>\<not>")
-  where "\<^bold>\<not> x \<equiv> (u \<^bold>- x)" -- "complement"
+  where "\<^bold>\<not> x \<equiv> THE z. \<forall> w. P w z \<longleftrightarrow> \<not> O w x" -- "complement"
 
 text {* And the operations of general sum and product @{cite casati_parts_1999}, p. 46:  *}
 
