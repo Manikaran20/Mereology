@@ -6,40 +6,38 @@ begin
 
 section {* Definitions *}
 
-typedecl "i" -- "the type of individuals"
-
 locale mereology  =
-  fixes P:: "i \<Rightarrow> i \<Rightarrow> bool" (infix "\<preceq>" 50)
+  fixes part:: "'a \<Rightarrow> 'a \<Rightarrow> bool" (infix "\<preceq>" 50)
 
 begin
 
-definition PP:: "i \<Rightarrow> i \<Rightarrow> bool" (infix "\<prec>" 50) 
+definition proper_part:: "'a \<Rightarrow> 'a \<Rightarrow> bool" (infix "\<prec>" 50) 
   where "x \<prec> y \<equiv> x \<preceq> y \<and> x \<noteq> y"
 
-lemma PP_irreflexive: "\<not> x \<prec> x"
-  by (simp add: PP_def)
+lemma proper_parthood_irreflexive: "\<not> x \<prec> x"
+  by (simp add: proper_part_def)
 
-lemma PP_asymmetric: "x \<prec> y \<longrightarrow> \<not> y \<prec> x" oops
+lemma proper_parthood_asymmetric: "x \<prec> y \<longrightarrow> \<not> y \<prec> x" oops
 
-definition overlap:: "i \<Rightarrow> i \<Rightarrow> bool" ("O")
+definition overlap:: "'a \<Rightarrow> 'a \<Rightarrow> bool" ("O")
   where "O x y \<equiv> \<exists> z. z \<preceq> x \<and> z \<preceq> y"
 
 lemma overlap_symmetric: "O x y \<longrightarrow> O y x"
   using overlap_def by blast
 
-definition disjoint:: "i \<Rightarrow> i \<Rightarrow> bool" ("D")
+definition disjoint:: "'a \<Rightarrow> 'a \<Rightarrow> bool" ("D")
   where "D x y \<equiv> \<not> O x y"
 
 lemma disjoint_symmetric: "D x y \<longrightarrow> D y x"
   using disjoint_def overlap_def by auto
 
-definition underlap:: "i \<Rightarrow> i \<Rightarrow> bool" ("U")
+definition underlap:: "'a \<Rightarrow> 'a \<Rightarrow> bool" ("U")
   where "U x y \<equiv> \<exists> z. x \<preceq> z \<and> y \<preceq> z"
 
 lemma underlap_symmetric: "U x y \<longrightarrow> U y x"
   using underlap_def by auto
 
-definition sum:: "i \<Rightarrow> i \<Rightarrow> i" (infix "\<oplus>" 52)
+definition sum:: "'a \<Rightarrow> 'a \<Rightarrow> 'a" (infix "\<oplus>" 52)
   where "x \<oplus> y \<equiv> THE z. \<forall> w. O w z \<longleftrightarrow> O w x \<or> O w y"
 
 lemma sum_commutative: "x \<oplus> y = y \<oplus> x"
@@ -50,7 +48,7 @@ proof -
     using sum_def by simp
 qed
 
-definition product:: "i \<Rightarrow> i \<Rightarrow> i" (infix "\<otimes>" 53)
+definition product:: "'a \<Rightarrow> 'a \<Rightarrow> 'a" (infix "\<otimes>" 53)
   where "x \<otimes> y \<equiv> THE z. \<forall> w. w \<preceq> z \<longleftrightarrow> w \<preceq> x \<and> w \<preceq> y" -- "product or intersection"
 
 lemma product_commutative: "x \<otimes> y = y \<otimes> x"
@@ -61,28 +59,28 @@ proof -
     using product_def by simp
 qed
 
-definition universe:: "i" ("u")
+definition universe:: "'a" ("u")
   where "u \<equiv> THE z. \<forall> w. w \<preceq> z"
 
-definition difference:: "i \<Rightarrow> i \<Rightarrow> i" (infix "\<ominus>" 51)
+definition difference:: "'a \<Rightarrow> 'a \<Rightarrow> 'a" (infix "\<ominus>" 51)
   where "x \<ominus> y \<equiv> THE z. \<forall> w. w \<preceq> z \<longleftrightarrow> w \<preceq> x \<and> D w y"
 
-definition complement:: "i \<Rightarrow> i" ("\<midarrow>")
+definition complement:: "'a \<Rightarrow> 'a" ("\<midarrow>")
   where "\<midarrow> x \<equiv> THE z. \<forall> w. w \<preceq> z \<longleftrightarrow> D w x"
 
-definition general_sum:: "(i \<Rightarrow> bool) \<Rightarrow> i" ("\<sigma>")
+definition general_sum:: "('a \<Rightarrow> bool) \<Rightarrow> 'a" ("\<sigma>")
   where "\<sigma> F \<equiv> THE x. \<forall> y. O y x \<longleftrightarrow> (\<exists> z. F z \<and> O z y)"
 
-abbreviation general_sum_infix:: "(i \<Rightarrow> bool) \<Rightarrow> i" (binder "\<sigma>" [8] 9)
+abbreviation general_sum_infix:: "('a \<Rightarrow> bool) \<Rightarrow> 'a" (binder "\<sigma>" [8] 9)
   where "\<sigma> x. F x \<equiv> \<sigma> F" --  "general sum or fusion of the Fs"
 
-lemma sum_of_its_PPs: "\<exists> y. y \<prec> x \<longrightarrow> x = (\<sigma> z. z \<prec> x)"
-  using PP_irreflexive by blast
+lemma sum_of_its_proper_parts: "\<exists> y. y \<prec> x \<longrightarrow> x = (\<sigma> z. z \<prec> x)"
+  using proper_parthood_irreflexive by blast
 
-definition general_product:: "(i \<Rightarrow> bool) \<Rightarrow> i" ("\<pi>")
+definition general_product:: "('a \<Rightarrow> bool) \<Rightarrow> 'a" ("\<pi>")
   where "\<pi> F \<equiv> \<sigma> x. \<forall> y. F y \<longrightarrow> x \<preceq> y"
 
-abbreviation general_product_infix:: "(i \<Rightarrow> bool) \<Rightarrow> i" (binder "\<pi>" [8] 9)
+abbreviation general_product_infix:: "('a \<Rightarrow> bool) \<Rightarrow> 'a" (binder "\<pi>" [8] 9)
   where "\<pi> x. F x \<equiv> \<pi> F"
 
 end
@@ -90,68 +88,68 @@ end
 section {* Ground Mereology *}
 
 locale ground_mereology = mereology +
- assumes P_reflexivity: "x \<preceq> x"
- assumes P_antisymmetry: "x \<preceq> y \<longrightarrow> y \<preceq> x \<longrightarrow> x = y"
- assumes P_transitivity: "x \<preceq> y \<longrightarrow> y \<preceq> z \<longrightarrow> x \<preceq> z"
+ assumes part_reflexivity: "x \<preceq> x"
+ assumes part_antisymmetry: "x \<preceq> y \<longrightarrow> y \<preceq> x \<longrightarrow> x = y"
+ assumes part_transitivity: "x \<preceq> y \<longrightarrow> y \<preceq> z \<longrightarrow> x \<preceq> z"
 
 begin
 
-interpretation partial_order: partial_order "(|carrier = set i, eq = op =, le = op \<preceq>|)"
-  using P_reflexivity P_antisymmetry P_transitivity by unfold_locales auto
+interpretation partial_order: partial_order "(|carrier = A, eq = op =, le = op \<preceq>|)"
+  using part_reflexivity part_antisymmetry part_transitivity by unfold_locales auto
 
 lemma "x = y \<longleftrightarrow> x \<preceq> y \<and> y \<preceq> x"
-  using P_antisymmetry P_reflexivity by auto
+  using part_antisymmetry part_reflexivity by auto
 
 lemma "x = y \<longleftrightarrow> (\<forall> z. z \<preceq> x \<longleftrightarrow> z \<preceq> y)"
-  using P_antisymmetry P_reflexivity by blast
+  using part_antisymmetry part_reflexivity by blast
 
 lemma "x = y \<longleftrightarrow> (\<forall> z. x \<preceq> z \<longleftrightarrow> y \<preceq> z)"
-  using P_antisymmetry P_reflexivity by blast
+  using part_antisymmetry part_reflexivity by blast
 
-lemma PP_asymmetry: "x \<prec> y \<longrightarrow> \<not> y \<prec> x"
-  by (simp add: PP_def P_antisymmetry)
+lemma proper_part_asymmetry: "x \<prec> y \<longrightarrow> \<not> y \<prec> x"
+  by (simp add: proper_part_def part_antisymmetry)
 
-lemma PP_transitivity: "x \<prec> y \<longrightarrow> y \<prec> z \<longrightarrow> x \<prec> z"
-  by (metis PP_def PP_asymmetry P_transitivity)
+lemma proper_part_transitivity: "x \<prec> y \<longrightarrow> y \<prec> z \<longrightarrow> x \<prec> z"
+  by (metis proper_part_def proper_part_asymmetry part_transitivity)
 
 lemma "x \<prec> y \<longleftrightarrow> x \<preceq> y \<and> \<not> y \<preceq> x"
-  using PP_def P_antisymmetry by auto
+  using proper_part_def part_antisymmetry by auto
 
 lemma "x \<preceq> y \<and> y \<prec> z \<longrightarrow> x \<prec> z"
-  using PP_def PP_transitivity by blast
+  using proper_part_def proper_part_transitivity by blast
 
 lemma "x \<prec> y \<and> y \<preceq> z \<longrightarrow> x \<prec> z"
-  using PP_def PP_transitivity by blast
+  using proper_part_def proper_part_transitivity by blast
 
 lemma overlap_reflexive: "O x x"
-  using overlap_def P_reflexivity by blast
+  using overlap_def part_reflexivity by blast
 
-lemma P_implies_overlap: "x \<preceq> y \<longrightarrow> O x y"
-  using overlap_def P_reflexivity by auto
+lemma parthood_implies_overlap: "x \<preceq> y \<longrightarrow> O x y"
+  using overlap_def part_reflexivity by auto
 
 lemma "x \<preceq> y \<and> O x z \<longrightarrow> O y z"
-  using overlap_def P_transitivity by blast
+  using overlap_def part_transitivity by blast
 
 lemma "(\<forall> z. z \<preceq> x \<longrightarrow> O z y) \<longleftrightarrow> (\<forall> z. O z x \<longrightarrow> O z y)"
-  by (meson overlap_def P_transitivity P_implies_overlap)
+  by (meson overlap_def part_transitivity parthood_implies_overlap)
 
 lemma disjoint_irreflexive: "\<not> D x x"
   by (simp add: disjoint_def overlap_reflexive)
 
 lemma "x \<preceq> y \<and> D y z \<longrightarrow> D x z"
-  by (meson disjoint_def overlap_def P_transitivity)
+  by (meson disjoint_def overlap_def part_transitivity)
 
 lemma "U x x"
-  using underlap_def P_reflexivity by blast
+  using underlap_def part_reflexivity by blast
 
-lemma  P_implies_underlap: "x \<preceq> y \<longrightarrow> U x y"
-  using underlap_def P_reflexivity by auto
+lemma  parthood_implies_underlap: "x \<preceq> y \<longrightarrow> U x y"
+  using underlap_def part_reflexivity by auto
 
 lemma "x \<preceq> y \<and> U y z \<longrightarrow> U x z"
-  using underlap_def P_transitivity by blast
+  using underlap_def part_transitivity by blast
 
 lemma "(\<forall> z. x \<preceq> z \<longrightarrow> U z y) \<longleftrightarrow> (\<forall> z. U z x \<longrightarrow> U z y)"
-  by (metis underlap_def P_transitivity P_implies_underlap)
+  by (metis underlap_def part_transitivity parthood_implies_underlap)
 
 lemma product_idempotence: "x \<otimes> x = x"
 proof -
@@ -161,7 +159,7 @@ proof -
   proof (rule the_equality)
     show "\<forall> w. w \<preceq> x \<longleftrightarrow> (w \<preceq> x \<and> w \<preceq> x)" by simp
     show "\<And> z. \<forall>w. w \<preceq> z \<longleftrightarrow> (w \<preceq> x \<and> w \<preceq> x) \<Longrightarrow> z = x"
-      using P_antisymmetry P_reflexivity by blast
+      using part_antisymmetry part_reflexivity by blast
   qed
   finally show ?thesis
     by simp
@@ -173,7 +171,7 @@ proof
   hence "(THE v. \<forall> w. w \<preceq> v \<longleftrightarrow> w \<preceq> x \<and> w \<preceq> y) = z"
   proof (rule the_equality)
     show "\<And> v. \<forall> w. w \<preceq> v \<longleftrightarrow> (w \<preceq> x \<and> w \<preceq> y) \<Longrightarrow> v = z "
-      by (meson antecedent P_antisymmetry P_reflexivity)
+      by (meson antecedent part_antisymmetry part_reflexivity)
   qed
   thus "x \<otimes> y = z"
     using product_def by auto
@@ -185,7 +183,7 @@ proof
   hence "(THE v. \<forall> w. w \<preceq> v \<longleftrightarrow> (w \<preceq> x \<and> D w y)) = z"
   proof (rule the_equality)
     show "\<And>v. \<forall>w. (w \<preceq> v) = (w \<preceq> x \<and> D w y) \<Longrightarrow> v = z"
-      by (meson antecedent P_antisymmetry P_reflexivity)
+      by (meson antecedent part_antisymmetry part_reflexivity)
   qed
   thus "x \<ominus> y = z"
     by (simp add: difference_def)
@@ -195,7 +193,7 @@ lemma disjoint_difference_absorption: "D x y \<longrightarrow> x \<ominus> y = x
 proof
   assume "D x y"
   hence "\<forall> w. w \<preceq> x \<longleftrightarrow> (w \<preceq> x \<and> D w y)"
-    by (meson disjoint_def overlap_def P_transitivity)
+    by (meson disjoint_def overlap_def part_transitivity)
   with difference_intro show "x \<ominus> y = x"..
 qed
 
@@ -205,7 +203,7 @@ proof
   hence "(THE z. \<forall> w. w \<preceq> z \<longleftrightarrow> D w x) = y"
   proof (rule the_equality)
     show "\<And>z. \<forall>w. (w \<preceq> z) = D w x \<Longrightarrow> z = y"
-      using antecedent P_antisymmetry P_reflexivity by blast
+      using antecedent part_antisymmetry part_reflexivity by blast
   qed
   thus "(\<midarrow> x) = y"
     using complement_def by auto
@@ -221,14 +219,14 @@ locale minimal_mereology = ground_mereology +
 begin
 
 lemma proper_weak_supplementation: "(\<forall> x. \<forall> y. x \<prec> y \<longrightarrow> (\<exists> z. z \<prec> y \<and> D z x))"
-  by (metis disjoint_def disjoint_symmetric P_implies_overlap
-PP_def weak_supplementation)
+  by (metis disjoint_def disjoint_symmetric parthood_implies_overlap
+proper_part_def weak_supplementation)
 
 lemma company: "x \<prec> y \<longrightarrow> (\<exists> z. z \<noteq> x \<and> z \<prec> y)"
   using disjoint_irreflexive proper_weak_supplementation by force
 
 lemma strong_company: "x \<prec> y \<longrightarrow> (\<exists> z. z \<prec> y \<and> \<not> z \<preceq> x)"
-  by (meson disjoint_def P_implies_overlap proper_weak_supplementation)
+  by (meson disjoint_def parthood_implies_overlap proper_weak_supplementation)
 
 end
 
@@ -239,31 +237,31 @@ locale extensional_mereology = ground_mereology +
 
 begin
 
-lemma PPs_principle:  "(\<exists> z. z \<prec> x) \<longrightarrow> (\<forall> z. z \<prec> x \<longrightarrow> z \<preceq> y) \<longrightarrow> x \<preceq> y"
-  by (metis disjoint_def overlap_def PP_def P_reflexivity strong_supplementation)
+lemma proper_parts_principle:  "(\<exists> z. z \<prec> x) \<longrightarrow> (\<forall> z. z \<prec> x \<longrightarrow> z \<preceq> y) \<longrightarrow> x \<preceq> y"
+  by (metis disjoint_def overlap_def proper_part_def part_reflexivity strong_supplementation)
 
 lemma extensionality: "(\<exists> z. z \<prec> x \<or> z \<prec> y) \<longrightarrow> (\<forall> z. z \<prec> x \<longleftrightarrow> z \<prec> y) \<longrightarrow> x = y"
-  by (meson PP_def P_antisymmetry PPs_principle)
+  by (meson proper_part_def part_antisymmetry proper_parts_principle)
 
 lemma weak_supplementation: "x \<prec> y \<longrightarrow> (\<exists> z. z \<preceq> y \<and> D z x)"
-  using PP_def P_antisymmetry strong_supplementation by blast
+  using proper_part_def part_antisymmetry strong_supplementation by blast
 
-lemma Ps_of_Ps_overlap: "x \<preceq> y \<longleftrightarrow> (\<forall> z. z \<preceq> x \<longrightarrow> O z y)"
-  using disjoint_def P_transitivity P_implies_overlap strong_supplementation by blast
+lemma parts_of_parts_overlap: "x \<preceq> y \<longleftrightarrow> (\<forall> z. z \<preceq> x \<longrightarrow> O z y)"
+  using disjoint_def part_transitivity parthood_implies_overlap strong_supplementation by blast
 
-lemma P_overlappers_overlap: "x \<preceq> y \<longleftrightarrow> (\<forall> z. O z x \<longrightarrow> O z y)"
-  by (meson overlap_def P_transitivity Ps_of_Ps_overlap)
+lemma part_overlappers_overlap: "x \<preceq> y \<longleftrightarrow> (\<forall> z. O z x \<longrightarrow> O z y)"
+  by (meson overlap_def part_transitivity parts_of_parts_overlap)
 lemma identity_overlap_eq: "x = y \<longleftrightarrow> (\<forall> z. O x z \<longleftrightarrow> O y z)"
-  by (meson disjoint_def overlap_symmetric P_antisymmetry P_implies_overlap strong_supplementation)
+  by (meson disjoint_def overlap_symmetric part_antisymmetry parthood_implies_overlap strong_supplementation)
 
 lemma "x \<preceq> y \<longleftrightarrow> (\<forall> z. D z y \<longrightarrow> D z x)"
-  by (metis disjoint_def P_transitivity overlap_def strong_supplementation)
+  by (metis disjoint_def part_transitivity overlap_def strong_supplementation)
 
 lemma "x \<preceq> y \<longleftrightarrow> (\<forall> z. D z y \<longrightarrow> \<not> z \<preceq> x)"
-  by (meson disjoint_def P_transitivity P_implies_overlap strong_supplementation)
+  by (meson disjoint_def part_transitivity parthood_implies_overlap strong_supplementation)
 
 lemma disjoin_equivalence: "x = y \<longleftrightarrow> (\<forall> z. D z x \<longleftrightarrow> D z y)"
-  by (metis disjoint_def PP_def P_implies_overlap strong_supplementation weak_supplementation)
+  by (metis disjoint_def proper_part_def parthood_implies_overlap strong_supplementation weak_supplementation)
 
 lemma sum_idempotence: "x \<oplus> x = x"
 proof -
@@ -292,14 +290,14 @@ proof
 qed
 
 lemma universe_intro: "(\<forall> y. y \<preceq> x) \<longrightarrow> x = u"
-  by (simp add: P_antisymmetry the_equality universe_def)
+  by (simp add: part_antisymmetry the_equality universe_def)
 
 lemma general_sum_absorpotion: "(\<sigma> z. z \<preceq> x) = x"
 proof -
   have "(THE v. \<forall> y. O y v \<longleftrightarrow> (\<exists> z. z \<preceq> x \<and> O z y)) = x"
   proof (rule the_equality)
     show "\<forall> y. O y x \<longleftrightarrow> (\<exists>z. z \<preceq> x \<and> O z y)"
-      using overlap_symmetric P_overlappers_overlap by blast
+      using overlap_symmetric part_overlappers_overlap by blast
     thus "\<And> v. \<forall> y. O y v \<longleftrightarrow> (\<exists> z. z \<preceq> x \<and> O z y) \<Longrightarrow> v = x"
       by (metis sum_intro)
   qed
@@ -331,7 +329,7 @@ proof -
   also have "... = x"
   proof (rule the_equality)
     show "\<forall>y. O y x = (\<exists>v. (\<forall> j. x = j \<longrightarrow> v \<preceq> j) \<and> O v y)"
-      using overlap_symmetric P_overlappers_overlap by blast
+      using overlap_symmetric part_overlappers_overlap by blast
     thus "\<And>z. \<forall> y. O y z = (\<exists>v. (\<forall> j. x = j \<longrightarrow> v \<preceq> j) \<and> O v y) \<Longrightarrow> z = x"
       by (metis sum_intro)
   qed
@@ -347,9 +345,9 @@ proof -
   also have "... = x"
   proof (rule the_equality)
     show "\<forall>y. O y x = (\<exists>v. (\<forall>j. x \<preceq> j \<longrightarrow> v \<preceq> j) \<and> O v y)"
-      by (meson overlap_def P_reflexivity P_transitivity)
+      by (meson overlap_def part_reflexivity part_transitivity)
     thus "\<And>z. \<forall>y. O y z = (\<exists>v. (\<forall>j. x \<preceq> j \<longrightarrow> v \<preceq> j) \<and> O v y) \<Longrightarrow> z = x"
-      by (metis P_antisymmetry P_implies_overlap Ps_of_Ps_overlap)
+      by (metis part_antisymmetry parthood_implies_overlap parts_of_parts_overlap)
   qed
   finally show "x = (\<pi> z. x \<preceq> z)"
     by simp
@@ -380,11 +378,11 @@ proof
     by (simp add: z)
 qed
 
-lemma P_of_first_factor: "O x y \<longrightarrow> x \<otimes> y \<preceq> x"
-  using P_reflexivity product_character by blast
+lemma part_of_first_factor: "O x y \<longrightarrow> x \<otimes> y \<preceq> x"
+  using part_reflexivity product_character by blast
 
-lemma P_of_second_factor: "O x y \<longrightarrow> x \<otimes> y \<preceq> y"
-  using P_reflexivity product_character by blast
+lemma part_of_second_factor: "O x y \<longrightarrow> x \<otimes> y \<preceq> y"
+  using part_reflexivity product_character by blast
 
 lemma "O x y \<and> z \<preceq> x \<otimes> y \<longrightarrow> z \<preceq> x"
   using product_character by blast
@@ -393,16 +391,16 @@ lemma "O x y \<and> z \<preceq> x \<otimes> y \<longrightarrow> z \<preceq> y"
   using product_character by blast
 
 lemma "x \<preceq> y \<longrightarrow> x \<otimes> y = x"
-  using P_antisymmetry P_reflexivity P_implies_overlap product_character by blast
+  using part_antisymmetry part_reflexivity parthood_implies_overlap product_character by blast
 
 lemma  "O x y \<and> x = x \<otimes> y \<longrightarrow> x \<preceq> y"
-  using P_of_second_factor by force
+  using part_of_second_factor by force
 
 lemma product_overlap_implies_overlap: "O x y \<and> O w (x \<otimes> y) \<longrightarrow> O w x"
   using overlap_def product_character by blast
 
-lemma PP_of_first_factor: "x \<noteq> y \<and> O x y \<longrightarrow> x \<otimes> y \<prec> x \<or> x \<otimes> y \<prec> y"
-  by (simp add: P_of_first_factor P_of_second_factor PP_def)
+lemma proper_part_of_first_factor: "x \<noteq> y \<and> O x y \<longrightarrow> x \<otimes> y \<prec> x \<or> x \<otimes> y \<prec> y"
+  by (simp add: part_of_first_factor part_of_second_factor proper_part_def)
 
 lemma product_association: "(\<exists> w. w \<preceq> x \<and> w \<preceq> y \<and> w \<preceq> z) \<longrightarrow> x \<otimes> (y \<otimes> z) = (x \<otimes> y) \<otimes> z"
 proof
@@ -424,7 +422,7 @@ proof
   hence  "\<forall> w. w \<preceq> ((x \<otimes> y) \<otimes> z) \<longleftrightarrow> w \<preceq> x \<and> w \<preceq> y \<and> w \<preceq> z"
     using xy by simp
   thus "x \<otimes> (y \<otimes> z) = (x \<otimes> y) \<otimes> z"
-    using xyz P_antisymmetry P_reflexivity by blast
+    using xyz part_antisymmetry part_reflexivity by blast
 qed
 
 end
@@ -442,18 +440,18 @@ proof fix x y
   proof cases
     assume "D x y"
     thus "(\<exists> z. z \<preceq> x \<and> D z y)"
-      using P_reflexivity by auto
+      using part_reflexivity by auto
   next
     assume "\<not> D x y"
     hence "O x y"
       using disjoint_def by simp
     with product_character have product: "\<forall> w. w \<preceq> (x \<otimes> y) \<longleftrightarrow> (w \<preceq> x \<and> w \<preceq> y)"..
     hence "x \<otimes> y \<prec> x"
-      using \<open>\<not> x \<preceq> y\<close> P_reflexivity PP_def by auto
+      using \<open>\<not> x \<preceq> y\<close> part_reflexivity proper_part_def by auto
     with weak_supplementation have "\<exists> z. z \<preceq> x \<and> D z (x \<otimes> y)"..
     then obtain c where c: "c \<preceq> x \<and> D c (x \<otimes> y)"..
     hence "c \<preceq> x \<and> D c y"
-      by (meson disjoint_def overlap_def P_transitivity product)
+      by (meson disjoint_def overlap_def part_transitivity product)
     thus "\<exists> z. z \<preceq> x \<and> D z y"..
   qed
 qed
@@ -490,7 +488,7 @@ proof
     using underlap_def by auto
   with underlapping_sum_character have xy: "(\<forall> w. O w (x \<oplus> y) \<longleftrightarrow> (O w x \<or> O w y))"..
    hence "U (x \<oplus> y) z"
-    using underlap_def antecedent P_overlappers_overlap by auto
+    using underlap_def antecedent part_overlappers_overlap by auto
   with underlapping_sum_character have "(\<forall> w. O w ((x \<oplus> y) \<oplus> z) \<longleftrightarrow> (O w (x \<oplus> y) \<or> O w z))"..
   hence xyz: "\<forall> w. O w ((x \<oplus> y) \<oplus> z) \<longleftrightarrow> (O w x \<or> O w y \<or> O w z)"
     using xy by simp  
@@ -498,28 +496,28 @@ proof
     using antecedent underlap_def by auto
   with underlapping_sum_character have yz: "(\<forall> w. O w (y \<oplus> z) \<longleftrightarrow> (O w y \<or> O w z))"..
   hence "U x (y \<oplus> z)"
-    using underlap_def antecedent P_overlappers_overlap by auto
+    using underlap_def antecedent part_overlappers_overlap by auto
   with underlapping_sum_character have "(\<forall> w. O w (x \<oplus> (y \<oplus> z)) \<longleftrightarrow> (O w x \<or> O w (y \<oplus> z)))"..
   hence "\<forall> w. O w (x \<oplus> (y \<oplus> z)) \<longleftrightarrow> (O w x \<or> O w y \<or> O w z)"
     using yz by simp
   hence "\<forall> w. O w (x \<oplus> (y \<oplus> z)) \<longleftrightarrow>  O w ((x \<oplus> y) \<oplus> z)"
     using xyz by simp
   thus "x \<oplus> (y \<oplus> z) = (x \<oplus> y) \<oplus> z"
-    using P_overlappers_overlap P_antisymmetry by auto
+    using part_overlappers_overlap part_antisymmetry by auto
 qed
 
-lemma sums_of_Ps_are_Ps: "x \<preceq> z \<and> y \<preceq> z \<longrightarrow> x \<oplus> y \<preceq> z"
+lemma sums_of_parts_are_parts: "x \<preceq> z \<and> y \<preceq> z \<longrightarrow> x \<oplus> y \<preceq> z"
 proof
   assume "x \<preceq> z \<and> y \<preceq> z"
   hence "U x y"
     using underlap_def by blast
   with underlapping_sum_character have "\<forall> w. O w (x \<oplus> y) \<longleftrightarrow> (O w x \<or> O w y)"..
   thus "x \<oplus> y \<preceq> z"
-    using P_overlappers_overlap \<open>x \<preceq> z \<and> y \<preceq> z\<close> by auto
+    using part_overlappers_overlap \<open>x \<preceq> z \<and> y \<preceq> z\<close> by auto
 qed
 
-lemma P_implies_absorption: "y \<preceq> x \<longrightarrow> x = x \<oplus> y"
-  by (metis sum_intro P_overlappers_overlap)
+lemma part_implies_absorption: "y \<preceq> x \<longrightarrow> x = x \<oplus> y"
+  by (metis sum_intro part_overlappers_overlap)
 
 end
 
@@ -542,7 +540,7 @@ proof
   hence "(THE y. \<forall> x. x \<preceq> y) = z"
   proof (rule the_equality)
     show "\<And> y. \<forall> x. x \<preceq> y \<Longrightarrow> y = z"
-      by (simp add: \<open>\<forall>x. x \<preceq> z\<close> P_antisymmetry)
+      by (simp add: \<open>\<forall>x. x \<preceq> z\<close> part_antisymmetry)
   qed
   thus "u = z"
     by (simp add: universe_def)
@@ -552,10 +550,10 @@ lemma universe_character: "\<forall> x. x \<preceq> u"
   using universe_closure universe_intro by blast
 
 lemma "u \<preceq> x \<longrightarrow> u = x"
-  by (simp add: P_antisymmetry universe_character)
+  by (simp add: part_antisymmetry universe_character)
 
 lemma "\<not> u \<prec> x"
-  by (simp add: P_antisymmetry PP_def universe_character)
+  by (simp add: part_antisymmetry proper_part_def universe_character)
 
 lemma multiplicative_identity: "x \<otimes> u = x"
   by (simp add: product_intro universe_character)
@@ -568,7 +566,7 @@ locale closed_extensional_mereology_with_universe = closure_mereology_with_unive
 begin
 
 lemma "x \<oplus> u = u"
-  using P_implies_absorption sum_commutative universe_character by auto
+  using part_implies_absorption sum_commutative universe_character by auto
 
 lemma sum_character: "\<forall> w. O w (x \<oplus> y) \<longleftrightarrow> (O w x \<or> O w y)"
   by (simp add: underlapping_sum_character universal_underlap)
@@ -577,39 +575,39 @@ lemma sum_associativity: "x \<oplus> (y \<oplus> z) = (x \<oplus> y) \<oplus> z"
   using conditonal_sum_associativity universe_character by blast
 
 lemma first_summand_inclusion: "x \<preceq> x \<oplus> y"
-  by (simp add: P_overlappers_overlap sum_character)
+  by (simp add: part_overlappers_overlap sum_character)
 
 lemma second_summand_inclusion: "y \<preceq> x \<oplus> y"
   using first_summand_inclusion sum_commutative by fastforce
 
-lemma  sum_is_P_iff_summands_are: "x \<oplus> y \<preceq> z \<longleftrightarrow> x \<preceq> z \<and> y \<preceq> z"
-  using first_summand_inclusion P_transitivity second_summand_inclusion
-sums_of_Ps_are_Ps by blast
+lemma  sum_is_part_iff_summands_are: "x \<oplus> y \<preceq> z \<longleftrightarrow> x \<preceq> z \<and> y \<preceq> z"
+  using first_summand_inclusion part_transitivity second_summand_inclusion
+sums_of_parts_are_parts by blast
 
-lemma  disjoint_summands_are_PPs: "D x y \<longrightarrow> x \<prec> x \<oplus> y \<and> y \<prec> x \<oplus> y"
-  by (metis disjoint_def disjoint_symmetric first_summand_inclusion P_implies_overlap
-PP_def second_summand_inclusion)
+lemma  disjoint_summands_are_proper_parts: "D x y \<longrightarrow> x \<prec> x \<oplus> y \<and> y \<prec> x \<oplus> y"
+  by (metis disjoint_def disjoint_symmetric first_summand_inclusion parthood_implies_overlap
+proper_part_def second_summand_inclusion)
 
-lemma nonP_implies_proper_summand: "\<not> x \<preceq> y \<longrightarrow> y \<prec> x \<oplus> y"
-  by (metis first_summand_inclusion PP_def second_summand_inclusion)
+lemma nonpart_implies_proper_summand: "\<not> x \<preceq> y \<longrightarrow> y \<prec> x \<oplus> y"
+  by (metis first_summand_inclusion proper_part_def second_summand_inclusion)
 
 lemma distinct_iff_proper_summand: "x \<noteq> y \<longleftrightarrow> x \<prec> x \<oplus> y \<or> y \<prec> x \<oplus> y"
-  using first_summand_inclusion PP_def second_summand_inclusion sum_idempotence by auto
+  using first_summand_inclusion proper_part_def second_summand_inclusion sum_idempotence by auto
 
-lemma absorption_iff_P: "x = x \<oplus> y \<longleftrightarrow> y \<preceq> x"
-  by (metis P_implies_absorption second_summand_inclusion)
+lemma absorption_iff_part: "x = x \<oplus> y \<longleftrightarrow> y \<preceq> x"
+  by (metis part_implies_absorption second_summand_inclusion)
 
-lemma  disjoint_second_implies_P_first: "(x \<preceq> y \<oplus> z \<and> D x z) \<longrightarrow> x \<preceq> y"
+lemma  disjoint_second_implies_part_first: "(x \<preceq> y \<oplus> z \<and> D x z) \<longrightarrow> x \<preceq> y"
 proof
   assume antecedent: "x \<preceq> y \<oplus> z \<and> D x z"
   have "\<forall> w. O w (y \<oplus> z) \<longleftrightarrow> (O w y \<or> O w z)" using sum_character.
   thus "x \<preceq> y"
-    by (meson antecedent disjoint_def overlap_symmetric P_overlappers_overlap Ps_of_Ps_overlap)
+    by (meson antecedent disjoint_def overlap_symmetric part_overlappers_overlap parts_of_parts_overlap)
 qed
 
 lemma proper_sum_monotonicity: "x \<prec> y \<and> D y z \<longrightarrow> x \<oplus> z \<prec> y \<oplus> z"
-  by (metis absorption_iff_P disjoint_second_implies_P_first PP_def sum_commutative 
-second_summand_inclusion sum_is_P_iff_summands_are)
+  by (metis absorption_iff_part disjoint_second_implies_part_first proper_part_def sum_commutative 
+second_summand_inclusion sum_is_part_iff_summands_are)
 
 end
 
@@ -644,15 +642,15 @@ proof
   with strong_supplementation have "(\<exists> w. w \<preceq> x \<and> D w y)"..
   with difference_character have "\<forall> w. w \<preceq> (x \<ominus> y) \<longleftrightarrow> (w \<preceq> x \<and> D w y)"..
   thus "(x \<ominus> y) \<prec> x"
-    using \<open>O x y \<and> \<not> x \<preceq> y\<close> disjoint_def P_reflexivity PP_def by auto
+    using \<open>O x y \<and> \<not> x \<preceq> y\<close> disjoint_def part_reflexivity proper_part_def by auto
 qed
 
-lemma PP_implies_proper_difference: "x \<prec> y \<longrightarrow> y \<ominus> x \<prec> y"
-  using overlap_symmetric P_implies_overlap proper_difference PP_asymmetry
-PP_def by blast
+lemma proper_part_implies_proper_difference: "x \<prec> y \<longrightarrow> y \<ominus> x \<prec> y"
+  using overlap_symmetric parthood_implies_overlap proper_difference proper_part_asymmetry
+proper_part_def by blast
 
 lemma no_difference_implies_disjoint: "\<not> y \<preceq> x \<and> y \<ominus> x = y \<longrightarrow> D x y"
-  using disjoint_def disjoint_symmetric proper_difference PP_def by blast
+  using disjoint_def disjoint_symmetric proper_difference proper_part_def by blast
 
 lemma proper_difference_absorption: "x \<prec> y \<longrightarrow> x \<oplus> (y \<ominus> x) = y"
 proof
@@ -660,15 +658,15 @@ proof
   with weak_supplementation have "(\<exists> w. w \<preceq> y \<and> D w x)"..
   with difference_character have difference: "\<forall> w. w \<preceq> (y \<ominus> x) \<longleftrightarrow> (w \<preceq> y \<and> D w x)"..
   hence "U x (y \<ominus> x)"
-    by (metis \<open>x \<prec> y\<close> PP_def underlap_def P_reflexivity)
+    by (metis \<open>x \<prec> y\<close> proper_part_def underlap_def part_reflexivity)
   with underlapping_sum_character have "\<forall> w. O w (x \<oplus> (y \<ominus> x)) \<longleftrightarrow> O w x \<or> O w (y \<ominus> x)"..
   hence "\<forall> w. O w (x \<oplus> (y \<ominus> x)) \<longleftrightarrow> O w y \<or> (O w y \<and> D w x)"
-    by (metis \<open>x \<prec> y\<close> difference disjoint_def P_overlappers_overlap overlap_def
-overlap_symmetric PP_def)
+    by (metis \<open>x \<prec> y\<close> difference disjoint_def part_overlappers_overlap overlap_def
+overlap_symmetric proper_part_def)
   hence  "\<forall> w. O w (x \<oplus> (y \<ominus> x)) \<longleftrightarrow> O w y"
     by blast
   thus "x \<oplus> (y \<ominus> x) = y"
-    by (simp add: P_antisymmetry P_overlappers_overlap)
+    by (simp add: part_antisymmetry part_overlappers_overlap)
  qed  
   
 lemma difference_absorbs_product: "O x y \<and> \<not> x \<preceq> y \<longrightarrow> x \<ominus> (x \<otimes> y) = x \<ominus> y"
@@ -686,9 +684,9 @@ proof
   hence "\<forall> w. w \<preceq> (x \<ominus> (x \<otimes> y)) \<longleftrightarrow> (w \<preceq> x \<and> D w (x \<otimes> y))"
     by (simp add: disjoint_def)
   hence "\<forall> w. w \<preceq> (x \<ominus> (x \<otimes> y)) \<longleftrightarrow> w \<preceq> (x \<ominus> y)"
-    using product right disjoint_def overlap_def P_transitivity by smt
+    using product right disjoint_def overlap_def part_transitivity by smt
   thus "x \<ominus> (x \<otimes> y) = x \<ominus> y"
-    using P_antisymmetry P_reflexivity by blast
+    using part_antisymmetry part_reflexivity by blast
 qed
   
 lemma difference_monotonicity: "\<not> x \<preceq> z \<longrightarrow> x \<preceq> y \<longrightarrow> x \<ominus> z \<preceq> y \<ominus> z"
@@ -700,13 +698,13 @@ proof
   proof
     assume "x \<preceq> y"
     hence "\<not> y \<preceq> z"
-      using \<open>\<not> x \<preceq> z\<close> P_transitivity by blast
+      using \<open>\<not> x \<preceq> z\<close> part_transitivity by blast
     with strong_supplementation have "\<exists> w. w \<preceq> y \<and> D w z"..
     with difference_character have right: "(\<forall> w. w \<preceq> (y \<ominus> z) \<longleftrightarrow> (w \<preceq> y \<and> D w z))"..
     hence "\<forall> w. w \<preceq> (x \<ominus> z) \<longrightarrow> w \<preceq> (y \<ominus> z)"
-      using P_transitivity \<open>x \<preceq> y\<close> left by blast
+      using part_transitivity \<open>x \<preceq> y\<close> left by blast
     thus "x \<ominus> z \<preceq> y \<ominus> z"
-      using P_reflexivity by auto
+      using part_reflexivity by auto
   qed
 qed
 
@@ -727,7 +725,7 @@ proof
   hence "(THE z. \<forall> w. w \<preceq> z \<longleftrightarrow> D w x) = a"
   proof (rule the_equality)
     show "\<And>z. \<forall>w. (w \<preceq> z) = D w x \<Longrightarrow> z = a"
-      using a P_antisymmetry P_reflexivity by blast
+      using a part_antisymmetry part_reflexivity by blast
   qed
   hence "(\<midarrow> x) = a"
     using complement_def by auto
@@ -736,13 +734,13 @@ proof
 qed
 
 lemma disjoint_implies_overlaps_complement: "D x y \<longrightarrow> O x (\<midarrow> y)"
-  using complement_character disjoint_def P_implies_overlap by blast
+  using complement_character disjoint_def parthood_implies_overlap by blast
 
 lemma difference_closure: "(\<exists> w. w \<preceq> x \<and> D w y) \<longrightarrow> (\<exists> z. \<forall> w. w \<preceq> z \<longleftrightarrow> (w \<preceq> x \<and> D w y))"
 proof
   assume antecedent: "(\<exists> w. w \<preceq> x \<and> D w y)"
   hence "\<not> (\<forall> z. z \<preceq> y)"
-    using disjoint_def P_implies_overlap by blast
+    using disjoint_def parthood_implies_overlap by blast
   with complement_character have comp: "\<forall> w. w \<preceq> (\<midarrow> y) \<longleftrightarrow> D w y"..
   hence "O x (\<midarrow> y)"
     by (simp add: antecedent overlap_def)
@@ -770,7 +768,7 @@ proof
     using universe_intro by blast
   with complement_character have "\<forall> w. (w \<preceq> \<midarrow> x) \<longleftrightarrow> D w x"..
   hence "\<forall> y. O y (\<midarrow> x) \<longleftrightarrow> (\<exists> z. (D x z) \<and> O z y)"
-    by (meson disjoint_symmetric overlap_symmetric P_overlappers_overlap)
+    by (meson disjoint_symmetric overlap_symmetric part_overlappers_overlap)
   with general_sum_intro show "(\<sigma> z. D x z) = \<midarrow> x"..
 qed
 
@@ -788,7 +786,7 @@ lemma unique_complement: "(\<exists>! z. \<forall> w. w \<preceq> z \<longleftri
 proof
   assume  "(\<exists>! z. \<forall> w.  w \<preceq> z \<longleftrightarrow> D w x)"
   thus "x \<noteq> u"
-    by (meson disjoint_def P_reflexivity P_implies_overlap universe_character)
+    by (meson disjoint_def part_reflexivity parthood_implies_overlap universe_character)
 next
   assume "x \<noteq> u"
   show "\<exists>! z. \<forall> w. w \<preceq> z \<longleftrightarrow> D w x"
@@ -801,7 +799,7 @@ next
 qed
 
 lemma complement_disjointness: "x \<noteq> u \<longrightarrow> D x (\<midarrow> x)"
-  using disjoint_symmetric P_reflexivity univ_complement_character by blast
+  using disjoint_symmetric part_reflexivity univ_complement_character by blast
 
 lemma additive_inverse: "x \<noteq> u \<longrightarrow> x \<oplus> (\<midarrow> x) = u"
 proof
@@ -809,7 +807,7 @@ proof
   with univ_complement_character have "(\<forall> w. w \<preceq> (\<midarrow> x) \<longleftrightarrow> D w x)"..
   have "\<forall> w. O w (x \<oplus> (\<midarrow> x)) \<longleftrightarrow> (O w x \<or> O w (\<midarrow> x))" using sum_character.
   thus "(x \<oplus> (\<midarrow> x)) = u"
-    by (metis \<open>\<forall>w. (w \<preceq> \<midarrow> x) = D w x\<close> disjoint_def P_overlappers_overlap P_implies_overlap universe_intro)
+    by (metis \<open>\<forall>w. (w \<preceq> \<midarrow> x) = D w x\<close> disjoint_def part_overlappers_overlap parthood_implies_overlap universe_intro)
 qed
 
 lemma in_comp_iff_disjoint: "y \<noteq> u \<longrightarrow> x \<preceq> \<midarrow> y \<longleftrightarrow> D x y"
@@ -817,7 +815,7 @@ lemma in_comp_iff_disjoint: "y \<noteq> u \<longrightarrow> x \<preceq> \<midarr
 
 lemma double_comp_eq: "x \<noteq> u \<longrightarrow> x = (\<midarrow>(\<midarrow> x))"
   by (metis additive_inverse complement_disjointness disjoint_irreflexive
-disjoint_second_implies_P_first first_summand_inclusion P_antisymmetry
+disjoint_second_implies_part_first first_summand_inclusion part_antisymmetry
 univ_complement_character)
 
 lemma prod_disj_imp_overlap_comp: "O w x \<and> O x y \<and> O x (\<midarrow>y) \<longrightarrow> D w (x \<otimes> y) \<longrightarrow> O w (x \<otimes> (\<midarrow>y))"
@@ -837,9 +835,9 @@ proof
       using antecedent disjoint_def multiplicative_identity by auto
     with univ_complement_character have comp: "\<forall> w. w \<preceq> (\<midarrow> y) \<longleftrightarrow> D w y"..
     hence "w \<otimes> x \<preceq> x \<otimes> (\<midarrow> y)" using prodwx prodxy
-      using antecedent disjoint disjoint_def overlap_def P_of_second_factor prod_comp by auto
+      using antecedent disjoint disjoint_def overlap_def part_of_second_factor prod_comp by auto
     hence "w \<otimes> x \<preceq> w \<and> w \<otimes> x \<preceq> x \<otimes> (\<midarrow> y)"
-      by (simp add: antecedent P_of_first_factor)
+      by (simp add: antecedent part_of_first_factor)
     thus "O w (x \<otimes> (\<midarrow>y))"
       using overlap_def by blast
   qed
@@ -901,8 +899,8 @@ proof
   hence  "(\<exists> w. w \<preceq> (x \<oplus> y) \<and> D w x)"..
   with difference_character have "(\<forall> w. w \<preceq> ((x \<oplus> y) \<ominus> x) \<longleftrightarrow> (w \<preceq> (x \<oplus> y) \<and> D w x))"..
   thus "(x \<oplus> y) \<ominus> x = y"
-    by (metis \<open>y \<preceq> x \<oplus> y \<and> D y x\<close> disjoint_second_implies_P_first sum_commutative
-P_antisymmetry P_reflexivity)
+    by (metis \<open>y \<preceq> x \<oplus> y \<and> D y x\<close> disjoint_second_implies_part_first sum_commutative
+part_antisymmetry part_reflexivity)
 qed
 
 end
@@ -938,7 +936,7 @@ closure_mereology_with_differences_axioms)
 section {* General Mereology *}
 
 text {* General Mereology is obtained from Ground Mereology by adding the axiom of fusion or
-unrestricted composition @{cite "casati_Ps_1999"} p. 46:  *}
+unrestricted composition @{cite "casati_parts_1999"} p. 46:  *}
 
 locale general_mereology = ground_mereology +
   assumes fusion: "(\<exists> x. F x) \<longrightarrow> (\<exists> z. \<forall> y. O y z \<longleftrightarrow> (\<exists> x. F x \<and> O x y))"
@@ -965,7 +963,7 @@ proof -
   hence  "\<exists> z. \<forall> y. O y z \<longleftrightarrow> (\<exists> x. O x y)"
     by simp
   thus ?thesis
-    by (metis overlap_def P_reflexivity)
+    by (metis overlap_def part_reflexivity)
 qed
 
 end
@@ -995,11 +993,11 @@ proof
       hence "y \<preceq> z"
         using sum by simp
       hence "O y z"
-        using overlap_def P_reflexivity by auto
+        using overlap_def part_reflexivity by auto
       hence "(\<exists> x. F x \<and> O x y)"
         using z by simp
       thus "(\<forall> w. w \<preceq> y \<longrightarrow> (\<exists> v. F v \<and> O v w))"
-        by (metis overlap_def P_reflexivity P_transitivity \<open>y \<preceq> z\<close> z)
+        by (metis overlap_def part_reflexivity part_transitivity \<open>y \<preceq> z\<close> z)
     next
       assume "(\<forall> w. w \<preceq> y \<longrightarrow> (\<exists> v. F v \<and> O v w))"
       hence "y \<preceq> z" using z
@@ -1015,12 +1013,12 @@ text {* Following proof from @{cite "pontow_note_2004"} pp. 204  *}
 lemma product_closure: "O x y \<longrightarrow> (\<exists> z. \<forall> w. w \<preceq> z \<longleftrightarrow> (w \<preceq> x \<and> w \<preceq> y))"
 proof
   assume "O x y"
-  hence common_P: "\<exists> z. (z \<preceq> x \<and> z \<preceq> y)"
+  hence common_part: "\<exists> z. (z \<preceq> x \<and> z \<preceq> y)"
     using overlap_def by simp
   have "(\<exists> v. (v \<preceq> x \<and> v \<preceq> y)) \<longrightarrow> (\<forall> w. w \<preceq> (\<sigma> v. (v \<preceq> x \<and> v \<preceq> y))  \<longleftrightarrow> (\<forall> z. z \<preceq> w \<longrightarrow> (\<exists> v. (v \<preceq> x \<and> v \<preceq> y) \<and> O v z)))"
     using general_sum_character.
-  hence common_P_sum: "(\<forall> w. w \<preceq> (\<sigma> v. (v \<preceq> x \<and> v \<preceq> y)) \<longleftrightarrow> (\<forall> z. z \<preceq> w \<longrightarrow> (\<exists> v. (v \<preceq> x \<and> v \<preceq> y) \<and> O v z)))"
-    using common_P..
+  hence common_part_sum: "(\<forall> w. w \<preceq> (\<sigma> v. (v \<preceq> x \<and> v \<preceq> y)) \<longleftrightarrow> (\<forall> z. z \<preceq> w \<longrightarrow> (\<exists> v. (v \<preceq> x \<and> v \<preceq> y) \<and> O v z)))"
+    using common_part..
   have "\<forall> w. w \<preceq> (\<sigma> v. (v \<preceq> x \<and> v \<preceq> y)) \<longleftrightarrow> (w \<preceq> x \<and> w \<preceq> y)"
   proof
     fix w
@@ -1028,15 +1026,15 @@ proof
     proof
       assume "w \<preceq> (\<sigma> v. (v \<preceq> x \<and> v \<preceq> y))"
       hence "(\<forall> t. t \<preceq> w \<longrightarrow> (\<exists> v. v \<preceq> x \<and> v \<preceq> y \<and> O v t))"
-        using common_P_sum by simp
+        using common_part_sum by simp
       hence "\<forall> t. t \<preceq> w \<longrightarrow> (O t x \<and> O t y)"
-        by (meson overlap_symmetric P_overlappers_overlap)
+        by (meson overlap_symmetric part_overlappers_overlap)
       thus "w \<preceq> x \<and> w \<preceq> y"
-        using strong_supplementation P_transitivity disjoint_def by meson
+        using strong_supplementation part_transitivity disjoint_def by meson
     next
       assume "w \<preceq> x \<and> w \<preceq> y"
       thus "w \<preceq> (\<sigma> v. (v \<preceq> x \<and> v \<preceq> y))"
-        using overlap_def P_reflexivity common_P_sum by fastforce
+        using overlap_def part_reflexivity common_part_sum by fastforce
     qed
   qed
   thus "(\<exists> z. \<forall> w. w \<preceq> z \<longleftrightarrow> (w \<preceq> x \<and> w \<preceq> y))"..
@@ -1061,18 +1059,18 @@ proof
     proof
       assume left: "w \<preceq> (\<sigma> v. (v \<preceq> a \<and> D v b))"
       have "\<forall> z. z \<preceq> w \<longrightarrow> O z a"
-        using left overlap_symmetric P_overlappers_overlap sum by blast
+        using left overlap_symmetric part_overlappers_overlap sum by blast
       hence "w \<preceq> a"
         using strong_supplementation disjoint_def by blast
       have "\<forall> v. v \<preceq> w \<longrightarrow> \<not> v \<preceq> b"
-        by (metis overlap_def disjoint_def P_transitivity sum left)
+        by (metis overlap_def disjoint_def part_transitivity sum left)
       hence "D w b"
         using overlap_def disjoint_def by simp
       with \<open>w \<preceq> a\<close> show "w \<preceq> a \<and> D w b"..
     next
       assume "w \<preceq> a \<and> D w b"
       thus "w \<preceq> (\<sigma> v. (v \<preceq> a \<and> D v b))"
-        using overlap_symmetric P_implies_overlap sum by blast
+        using overlap_symmetric parthood_implies_overlap sum by blast
     qed
   qed
   thus "(\<exists> z. \<forall> w. w \<preceq> z \<longleftrightarrow> (w \<preceq> a \<and> D w b))"..
@@ -1125,15 +1123,15 @@ proof
       proof
         assume "z \<preceq> y" 
         thus "(\<forall> z. F z \<longrightarrow> z \<preceq> y)"
-          using overlap_symmetric P_overlappers_overlap z by blast
+          using overlap_symmetric part_overlappers_overlap z by blast
       next
         assume "(\<forall> z. F z \<longrightarrow> z \<preceq> y)"
         thus "z \<preceq> y"
-          using overlap_symmetric P_overlappers_overlap z by blast
+          using overlap_symmetric part_overlappers_overlap z by blast
       qed
     qed
     thus "\<And>x. \<forall>y. (x \<preceq> y) = (\<forall>z. F z \<longrightarrow> z \<preceq> y) \<Longrightarrow> x = z"
-      using P_antisymmetry P_reflexivity by blast
+      using part_antisymmetry part_reflexivity by blast
   qed
   thus "(\<sigma> x. F x) = (THE x. \<forall> y. x \<preceq> y \<longleftrightarrow> (\<forall> z. F z \<longrightarrow> z \<preceq> y))" 
     using \<open>(\<sigma> x. F x) = z\<close> by metis
@@ -1151,7 +1149,7 @@ proof
   have "(THE x. (\<forall> y. F y \<longrightarrow> y \<preceq> x) \<and> (\<forall> y. O y x \<longleftrightarrow> (\<exists> z. F z \<and> O y z))) = z"
   proof (rule the_equality)
     show "(\<forall>y. F y \<longrightarrow> y \<preceq> z) \<and> (\<forall>y. O y z = (\<exists>z. F z \<and> O y z))"
-      using overlap_symmetric P_overlappers_overlap z by blast
+      using overlap_symmetric part_overlappers_overlap z by blast
     thus " \<And>x. (\<forall>y. F y \<longrightarrow> y \<preceq> x) \<and> (\<forall>y. O y x = (\<exists>z. F z \<and> O y z)) \<Longrightarrow> x = z"
       by (metis sum_intro)
   qed
@@ -1185,9 +1183,9 @@ proof
         assume "F z"
         from sum have "(z \<preceq> (\<sigma> v. F v)) \<longleftrightarrow> (\<forall> w. w \<preceq> z \<longrightarrow> (\<exists> v. F v \<and> O v w))"..
         with \<open>F z\<close> have "(z \<preceq> (\<sigma> v. F v))"
-          by (metis overlap_symmetric P_reflexivity Ps_of_Ps_overlap)
+          by (metis overlap_symmetric part_reflexivity parts_of_parts_overlap)
         with antecedent show "D z x" 
-          by (metis disjoint_def overlap_symmetric P_overlappers_overlap)
+          by (metis disjoint_def overlap_symmetric part_overlappers_overlap)
       qed
     qed
   next
@@ -1221,11 +1219,9 @@ proof
     assume "(\<sigma> x. F x) \<preceq> (\<sigma> y. G y)"
     thus "(\<forall> x. F x \<longrightarrow> (\<exists> y. G y \<and> O x y))"
       by (metis T68 \<open>(\<sigma> y. G y) = z\<close> mereology.disjoint_def mereology.overlap_symmetric
-P_overlappers_overlap P_implies_overlap z)
+part_overlappers_overlap parthood_implies_overlap z)
   qed
 qed
-
-end
 
 end
 
